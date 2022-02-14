@@ -3,28 +3,9 @@ from tkinter import *
 from tkinter import messagebox
 import tkinter as tk
 from time import sleep
+from tkinter import filedialog
 
-# Code to add widgets will go here...
-"""top = Tk()
-top.geometry("300x200")
-def hello():
-   messagebox.showinfo("Say Hello", "Hello World")
 
-B1 = Button(top, text = "Say Hello", command = hello)
-B1.place(x = 35,y = 50)
-
-CheckVar1 = IntVar()
-CheckVar2 = IntVar()
-C1 = Checkbutton(top, text = "Music", variable = CheckVar1, \
-                 onvalue = 1, offvalue = 0, height=5, \
-                 width = 20)
-C2 = Checkbutton(top, text = "Video", variable = CheckVar2, \
-                 onvalue = 1, offvalue = 0, height=5, \
-                 width = 20)
-C1.pack()
-C2.pack()
-
-top.mainloop()"""
 
 class App():
     
@@ -87,8 +68,53 @@ class App():
 
         
     def changeText(self):
-        self.text.set("counting")  
+        self.text.set("counting")
+        
+    def browseFiles(self):
+        self.filename = filedialog.askopenfilename(initialdir = "/",
+                                          title = "Select a File",
+                                          filetypes = (("Text files",
+                                                        "*.txt*"),
+                                                       ("all files",
+                                                        "*.*")))
+      
+        label_file_explorer.configure(text="File Opened: "+filename)
         
                
 
 app =App()
+
+"""
+window.geometry("500x500")
+  
+#Set window background color
+window.config(background = "white")
+  
+# Create a File Explorer label
+label_file_explorer = Label(window,
+                            text = "File Explorer using Tkinter",
+                            width = 100, height = 4,
+                            fg = "blue")
+  
+      
+button_explore = Button(window,
+                        text = "Browse Files",
+                        command = browseFiles)
+  
+button_exit = Button(window,
+                     text = "Exit",
+                     command = exit)
+  
+# Grid method is chosen for placing
+# the widgets at respective positions
+# in a table like structure by
+# specifying rows and columns
+label_file_explorer.grid(column = 1, row = 1)
+  
+button_explore.grid(column = 1, row = 2)
+  
+button_exit.grid(column = 1,row = 3)
+  
+# Let the window wait for any events
+window.mainloop()
+"""
