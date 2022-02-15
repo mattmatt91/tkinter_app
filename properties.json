@@ -1,0 +1,36 @@
+{
+    "rate": 100000,
+    
+    "duration": 3,
+    
+    "sensors": 
+        [
+            "Mikro",
+            "Piezo",
+            "VIS1",
+            "IR1",
+            "VIS2",
+            "IR2"
+        ],
+    
+    "path": "C:\\Users\\Matthias\\Desktop\\Messaufbau\\dataaquisition\\data",
+    
+    "lastdir": "test6",
+    
+    "droptime": 1,
+
+    "samples": 
+        [
+            "Blank",
+            "Sugar",
+            "Tetrazene",
+            "Silverazide",
+            "Leadazide",
+            "Leadstyphnate",
+            "TNT",
+            "HMTD",
+            "TATP",
+            "Blackpowder"
+        ]
+}
+
