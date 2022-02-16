@@ -1,23 +1,11 @@
 {
-    "rate": 100000,
-
-    "duration": 3,
-
-    "sensors": [
-        "Mikro",
-        "Piezo",
-        "VIS1",
-        "IR1",
-        "VIS2",
-        "IR2"
-    ],
-
-    "path": "C:\\Users\\Matthias\\Desktop\\Messaufbau\\dataaquisition\\data",
-
-    "lastdir": "test6",
-
     "droptime": 1,
-
+    "duration": 3,
+    "height": 50,
+    "lastdir": "test6",
+    "number": 9,
+    "path": "test",
+    "rate": 100000,
     "samples": [
         "Blank",
         "Sugar",
@@ -30,5 +18,12 @@
         "TATP",
         "Blackpowder"
     ],
-    "number": 0
+    "sensors": [
+        "Mikro",
+        "Piezo",
+        "VIS1",
+        "IR1",
+        "VIS2",
+        "IR2"
+    ]
 }

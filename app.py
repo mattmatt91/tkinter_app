@@ -33,7 +33,7 @@ class Communication:
             properties (dictionary): dictionary with all parameters for the measurement
         """
         update_json = {}
-        for item in "rate duration sensors path lastdir droptime samples number".split():
+        for item in "rate duration sensors path lastdir droptime samples number height".split():
             update_json[item]= properties[item]
 
         json_string = js.dumps(update_json, indent=4, sort_keys=True)
@@ -46,7 +46,7 @@ class App():
     def __init__(self):
         # main window
         self.width_window = 400
-        self.height_window = 600
+        self.height_window = 700
         self.col_1 = 0
         self.col_2 = self.width_window/2 
         self.col_1b = self.width_window/4 
@@ -76,7 +76,7 @@ class App():
         self.label_heigth = tk.Label(self.root, text='height')
         self.label_heigth.place(x=self.col_1, y=self.set_row())
         self.entry_heigth = tk.Entry(self.root)
-        self.entry_heigth.insert(0, "50")
+        self.entry_heigth.insert(0, self.height.get())
         self.entry_heigth.place(x=self.col_2, y=self.set_row(next=False))
 
         self.label_number = tk.Label(self.root, text='number')
@@ -102,13 +102,18 @@ class App():
         self.entry_rate = tk.Entry(self.root)
         self.entry_rate.insert(0, self.rate.get())
         self.entry_rate.place(x=self.col_2, y=self.set_row(next=False))
-        
+
+        self.label_info = tk.Label(self.root, text='info')
+        self.label_info.place(x=self.col_1, y=self.set_row())
+        self.entry_info = tk.Entry(self.root)
+        self.entry_info.place(x=self.col_2, y=self.set_row(next=False), height=100)
+
         # check button
         checkvar_spec = BooleanVar()
         self.check_spec = Checkbutton(self.root, text = "log spectrometer", variable = checkvar_spec, 
                  onvalue = True, offvalue = False)
-        self.check_spec.place(x=self.col_1, y=self.set_row())
-        
+        self.check_spec.place(x=self.col_1, y=self.set_row(rows=2.5))
+
 
         # dropdowns
         self.label_sample = tk.Label(self.root, text='sample')
@@ -150,27 +155,33 @@ class App():
         self.path.set(join(self.folder_path.get(), self.last_dir.get()))
         self.rate = StringVar()
         self.rate.set(self.properties['rate'])
+        self.height = IntVar()
+        self.height.set(self.properties['height'])
+        self.info = StringVar()
         
 
     def update_entrys(self):
+        self.entry_heigth.delete(0, 'end')
         self.entry_number.delete(0, 'end')
         self.entry_droptime.delete(0, 'end')
         self.entry_duration.delete(0, 'end')
         self.entry_rate.delete(0, 'end')
+        self.entry_heigth.insert(0, self.height.get())
         self.entry_number.insert(0, self.number.get())
         self.entry_droptime.insert(0, self.droptime.get())
         self.entry_duration.insert(0, self.duration.get())
         self.entry_rate.insert(0, self.rate.get())
         
 
-    def set_row(self, next=True):
+    def set_row(self, next=True, rows=1):
         if next:
-            self.row_counter += self.row_distance 
+            # print(rows, next, self.row_counter)
+            self.row_counter += self.row_distance*rows 
         else:
             pass
         return self.row_counter
-     
-        
+
+
     def create_properties(self):
         rate= self.check_if_int(self.entry_rate.get())
         duration = self.check_if_int(self.entry_duration.get())
@@ -180,9 +191,9 @@ class App():
         sample = self.sample.get()
         number = self.check_if_int(self.entry_number.get())
         height = self.check_if_int(self.entry_heigth.get())
-        info = 'test info'
         time_stamp = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
         last_dir = self.path.get()[self.path.get().rfind('\\')+1:]
+        info = self.entry_info.get()
         
         properties = {
                     "rate": rate,
@@ -204,7 +215,7 @@ class App():
                 return
             else:
                 Communication.update_properties(properties)
-                self.update_entrys()
+                print(js.dumps(properties, indent=6, sort_keys=True))
                 return properties
 
     def check_if_int(self,value):
@@ -220,9 +231,9 @@ class App():
         if this_properties == None:
             return
         else:
-            print('starting measurement\n', this_properties)
-        self.reload_properties()
-        
+            print('starting measurement\n')
+            self.reload_properties()
+            self.update_entrys()
         
     def browse_button(self):
         filename = filedialog.askdirectory()
