@@ -2,24 +2,16 @@
 from tkinter import *
 from tkinter import messagebox
 import tkinter as tk
+from tkinter import ttk
 from time import sleep
 from tkinter import filedialog
 from os import listdir
 from os.path import isfile, join, isdir
 import json as js
 from datetime import datetime
+from main import start_measurement_app
 
-class Communication:
-    def get_files(path):
-        try:
-            if isdir(path):
-                onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-            else:
-                print("path does not exist")
-        except Exception as e:
-            print(e)
-
-
+class Filehandling:
     def read_json():
         with open('properties.json') as json_file:
             return js.load(json_file)
@@ -52,7 +44,8 @@ class App():
         self.col_1b = self.width_window/4 
         self.col_2b = (self.width_window/4)*3 
         self.center = self.width_window/3 
-        self.row_counter = 0
+        self.row_counter_measure = 0
+        self.row_counter_test = 0
         self.row_distance = 50 
 
         self.goemetry = '{0}x{1}'.format(self.width_window, self.height_window)
@@ -60,99 +53,116 @@ class App():
         self.root.geometry(self.goemetry)
         self.reload_properties()
 
+        # create tabs
+        self.tabControl = ttk.Notebook(self.root)
+        self.tab_measure = ttk.Frame(self.tabControl)
+        self.tab_test = ttk.Frame(self.tabControl)
+        self.tabControl.add(self.tab_measure, text ='measure')
+        self.tabControl.add(self.tab_test, text ='test')
+        self.tabControl.pack(expand = 1, fill ="both")
 
+        # tab measure #######################################################################################
         # folde browser
-        self.label_path_preview = tk.Label(self.root, text='path')
-        self.label_path_preview.place(x=self.col_1, y=self.set_row()) 
+        self.label_path_preview = tk.Label(self.tab_measure, text='path')
+        self.label_path_preview.place(x=self.col_1, y=self.set_row('measure')) 
         
-        self.button_folder_browser = Button(text="Browse", command=self.browse_button)
-        self.button_folder_browser.place(x=self.col_1b, y=self.set_row(next=False))
+        self.button_folder_browser = Button(self.tab_measure, text="Browse", command=self.browse_button)
+        self.button_folder_browser.place(x=self.col_1b, y=self.set_row('measure', next=False))
         
-        self.label_path = tk.Label(self.root, textvariable=self.path, wraplengt=150)
-        self.label_path.place(x=self.col_2, y=self.set_row(next=False)) 
+        self.label_path = tk.Label(self.tab_measure, textvariable=self.path, wraplengt=150)
+        self.label_path.place(x=self.col_2, y=self.set_row('measure', next=False)) 
         
         
         # entrys
-        self.label_heigth = tk.Label(self.root, text='height')
-        self.label_heigth.place(x=self.col_1, y=self.set_row())
-        self.entry_heigth = tk.Entry(self.root)
+        self.label_heigth = tk.Label(self.tab_measure, text='height')
+        self.label_heigth.place(x=self.col_1, y=self.set_row('measure', rows=2))
+        self.entry_heigth = tk.Entry(self.tab_measure)
         self.entry_heigth.insert(0, self.height.get())
-        self.entry_heigth.place(x=self.col_2, y=self.set_row(next=False))
+        self.entry_heigth.place(x=self.col_2, y=self.set_row('measure', next=False))
 
-        self.label_number = tk.Label(self.root, text='number')
-        self.label_number.place(x=self.col_1, y=self.set_row())
-        self.entry_number = tk.Entry(self.root)
+        self.label_number = tk.Label(self.tab_measure, text='number')
+        self.label_number.place(x=self.col_1, y=self.set_row('measure'))
+        self.entry_number = tk.Entry(self.tab_measure)
         self.entry_number.insert(0, self.number.get())
-        self.entry_number.place(x=self.col_2, y=self.set_row(next=False))
+        self.entry_number.place(x=self.col_2, y=self.set_row('measure', next=False))
         
-        self.label_droptime = tk.Label(self.root, text='droptime')
-        self.label_droptime.place(x=self.col_1, y=self.set_row())
-        self.entry_droptime = tk.Entry(self.root)
+        self.label_droptime = tk.Label(self.tab_measure, text='droptime')
+        self.label_droptime.place(x=self.col_1, y=self.set_row('measure'))
+        self.entry_droptime = tk.Entry(self.tab_measure)
         self.entry_droptime.insert(0, self.droptime.get())
-        self.entry_droptime.place(x=self.col_2, y=self.set_row(next=False))
+        self.entry_droptime.place(x=self.col_2, y=self.set_row('measure', next=False))
         
-        self.label_duration = tk.Label(self.root, text='duration')
-        self.label_duration.place(x=self.col_1, y=self.set_row())
-        self.entry_duration = tk.Entry(self.root)
+        self.label_duration = tk.Label(self.tab_measure, text='duration')
+        self.label_duration.place(x=self.col_1, y=self.set_row('measure'))
+        self.entry_duration = tk.Entry(self.tab_measure)
         self.entry_duration.insert(0, self.duration.get())
-        self.entry_duration.place(x=self.col_2, y=self.set_row(next=False))
+        self.entry_duration.place(x=self.col_2, y=self.set_row('measure', next=False))
         
-        self.label_rate = tk.Label(self.root, text='rate')
-        self.label_rate.place(x=self.col_1, y=self.set_row())
-        self.entry_rate = tk.Entry(self.root)
+        self.label_rate = tk.Label(self.tab_measure, text='rate')
+        self.label_rate.place(x=self.col_1, y=self.set_row('measure'))
+        self.entry_rate = tk.Entry(self.tab_measure)
         self.entry_rate.insert(0, self.rate.get())
-        self.entry_rate.place(x=self.col_2, y=self.set_row(next=False))
+        self.entry_rate.place(x=self.col_2, y=self.set_row('measure', next=False))
 
-        self.label_info = tk.Label(self.root, text='info')
-        self.label_info.place(x=self.col_1, y=self.set_row())
-        self.entry_info = tk.Entry(self.root)
-        self.entry_info.place(x=self.col_2, y=self.set_row(next=False), height=100)
+        self.label_info = tk.Label(self.tab_measure, text='info')
+        self.label_info.place(x=self.col_1, y=self.set_row('measure'))
+        self.entry_info = tk.Entry(self.tab_measure)
+        self.entry_info.place(x=self.col_2, y=self.set_row('measure', next=False), height=100)
 
         # check button
         checkvar_spec = BooleanVar()
-        self.check_spec = Checkbutton(self.root, text = "log spectrometer", variable = checkvar_spec, 
+        self.check_spec = Checkbutton(self.tab_measure, text = "log spectrometer", variable = checkvar_spec, 
                  onvalue = True, offvalue = False)
-        self.check_spec.place(x=self.col_1, y=self.set_row(rows=2.5))
+        self.check_spec.place(x=self.col_1, y=self.set_row('measure', rows=2.5))
 
 
         # dropdowns
-        self.label_sample = tk.Label(self.root, text='sample')
-        self.label_sample.place(x=self.col_1, y=self.set_row())
+        self.label_sample = tk.Label(self.tab_measure, text='sample')
+        self.label_sample.place(x=self.col_1, y=self.set_row('measure'))
         self.sample = tk.StringVar()
         self.sample.set(self.samplelist[0])
-        self.dropdown_sample = tk.OptionMenu(self.root, self.sample, *self.samplelist)
-        self.dropdown_sample.place(x=self.col_2, y=self.set_row(next=False))
+        self.dropdown_sample = tk.OptionMenu(self.tab_measure, self.sample, *self.samplelist)
+        self.dropdown_sample.place(x=self.col_2, y=self.set_row('measure', next=False))
         
 
         # Buttons
-        self.button_start = tk.Button(self.root,
+        self.button_start = tk.Button(self.tab_measure,
                                 text="start measurement",
                                 command=self.start_measurement)
-        self.button_start.place(x=self.center, y=self.set_row())
+        self.button_start.place(x=self.center, y=self.set_row('measure'))
 
+        # tab test #######################################################################################
 
+        # Buttons
+        self.button_start = tk.Button(self.tab_test,
+                                text="start test",
+                                command=self.start_test)
+        self.button_start.place(x=self.center, y=self.set_row('test'))
+        
+        
+        
         # running main
-        self.root.mainloop()
+        self.tab_measure.mainloop()
 
 
     #reading props and setting varaibles
     def reload_properties(self):
-        self.properties = Communication.read_json()
+        self.properties = Filehandling.read_json()
         self.sensors = self.properties['sensors']
         self.samplelist = [i for i in self.properties['samples']]
         self.folder_path = StringVar()
         self.folder_path.set(self.properties['path'])
+        self.last_dir =StringVar()
+        self.last_dir.set(self.properties['lastdir'])
+        self.path = StringVar()
+        self.path.set(join(self.folder_path.get(), self.last_dir.get()))
         self.number = IntVar()
         new_number = self.properties['number'] + 1
         self.number.set(new_number)
         self.droptime = IntVar()
         self.droptime.set(self.properties['droptime'])
         self.duration = IntVar()
-        self.duration.set(self.properties['duration'])
-        self.last_dir =StringVar()
-        self.last_dir.set(self.properties['lastdir'])
-        self.path = StringVar()
-        self.path.set(join(self.folder_path.get(), self.last_dir.get()))
+        self.duration.set(self.properties['duration']) 
         self.rate = StringVar()
         self.rate.set(self.properties['rate'])
         self.height = IntVar()
@@ -166,6 +176,7 @@ class App():
         self.entry_droptime.delete(0, 'end')
         self.entry_duration.delete(0, 'end')
         self.entry_rate.delete(0, 'end')
+        self.entry_info.delete(0, 'end')
         self.entry_heigth.insert(0, self.height.get())
         self.entry_number.insert(0, self.number.get())
         self.entry_droptime.insert(0, self.droptime.get())
@@ -173,33 +184,42 @@ class App():
         self.entry_rate.insert(0, self.rate.get())
         
 
-    def set_row(self, next=True, rows=1):
+    def set_row(self, tab, next=True, rows=1):
         if next:
-            # print(rows, next, self.row_counter)
-            self.row_counter += self.row_distance*rows 
+            if tab == 'measure':
+                # print(rows, next, self.row_counter)
+                self.row_counter_measure += self.row_distance*rows 
+                this_row_counter = self.row_counter_measure
+            elif tab == 'test':
+                self.row_counter_measure += self.row_distance*rows
+                this_row_counter = self.row_counter_test
         else:
-            pass
-        return self.row_counter
+            if tab == 'measure':
+                this_row_counter = self.row_counter_measure
+            elif tab == 'test':
+                this_row_counter = self.row_counter_test
+        return this_row_counter
 
 
     def create_properties(self):
         rate= self.check_if_int(self.entry_rate.get())
         duration = self.check_if_int(self.entry_duration.get())
         sensors =self.sensors
-        this_path = 'test'
+        path = self.path.get()
         droptime = self.check_if_int(self.entry_droptime.get())
         sample = self.sample.get()
         number = self.check_if_int(self.entry_number.get())
         height = self.check_if_int(self.entry_heigth.get())
         time_stamp = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-        last_dir = self.path.get()[self.path.get().rfind('\\')+1:]
+        last_dir = path[path.rfind('\\')+1:]
+        print('last dir prop: ',last_dir)
         info = self.entry_info.get()
         
         properties = {
                     "rate": rate,
                     "duration": duration,
                     "sensors": sensors,
-                    "path": this_path,
+                    "path": path,
                     "droptime": droptime,
                     "sample": sample,
                     "height": height,
@@ -214,7 +234,7 @@ class App():
             if properties[item] == None:
                 return
             else:
-                Communication.update_properties(properties)
+                # Filehandling.update_properties(properties)
                 print(js.dumps(properties, indent=6, sort_keys=True))
                 return properties
 
@@ -232,12 +252,18 @@ class App():
             return
         else:
             print('starting measurement\n')
+            start_measurement_app(this_properties)
             self.reload_properties()
             self.update_entrys()
+            
         
     def browse_button(self):
         filename = filedialog.askdirectory()
-        self.folder_path.set(filename)      
+        print('selected:', filename)
+        self.path.set(filename) 
+        
+    def start_test():
+        print('starting test')     
 
 app =App()
 

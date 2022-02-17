@@ -19,6 +19,7 @@ def get_immediate_subdirectories(a_dir):
 
     Returns (list): list with pathes of subdiretories
     """
+    print(a_dir)
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]  
 
@@ -95,15 +96,15 @@ def select_sample(samples):
     """
     print('select sample')
     print('press:')
-    for sample in samples:
-        print(sample, 'for', samples[sample])
+    for sample, i in zip(samples, range(len(samples))):
+        print(i, 'for', sample)
     sample = None
     while sample == None:
-        user_input = input()
+        user_input = int(input())
         try:
             sample = samples[user_input]
-        except:
-            print('samlple out of range')
+        except Exception as e:
+            print('samlple out of range\n', e)
     print(sample, ' selected')
     return sample
 
@@ -163,10 +164,10 @@ def update_properties(properties):
         properties (dictionary): dictionary with all parameters for the measurement
     """
     update_json = {}
-    for item in "rate duration sensors path lastdir droptime number".split():
+    for item in "rate duration sensors path lastdir droptime samples number height".split():
         update_json[item]= properties[item]
 
-    json_string = js.dumps(update_json)
+    json_string = js.dumps(update_json, indent=4, sort_keys=True)
     with open('properties.json', 'w') as outfile:
         outfile.write(json_string)
     
@@ -201,9 +202,10 @@ def save_properties_measurement(properties):
     Args:
         properties (dictionary): dictionary with all parameters for the measurement
     """
+    print(properties['sensors'])
     save_properties = properties
     del save_properties['lastdir']
-    json_string = js.dumps(save_properties)
+    json_string = js.dumps(save_properties, indent=4, sort_keys=True)
     json_name = properties['path'] + '\\info.json'
     with open(json_name, 'w') as outfile:
         outfile.write(json_string)
@@ -213,12 +215,12 @@ def start_measurement():
     This is the main funciton of the module.
     It guides the user through the measurement via console.
     """
-    # reading sample list
-    samples = read_json('samples.json')
 
     # reading properties
     properties = read_json('properties.json')
-
+    print(properties['samples'])
+    samples = properties['samples']
+    print(samples)
     # select path
     folder, path = get_path(properties)
     properties['lastdir'] = folder
@@ -248,11 +250,11 @@ def start_measurement():
     # make dir for measurement
     path, path_file = mkdir(properties, folder)
     properties['path'] = path
-
+    print(properties['sensors'])
     # saving properties for measurement
     save_properties_measurement(properties)
-
     # main measuring part
+    print(properties['sensors'])
     read_data(properties, path_file)
 
 def start_measurement_app(properties):
@@ -267,7 +269,7 @@ def start_measurement_app(properties):
     save_properties_measurement(properties)
 
     # main measuring part
-    read_data(properties, path_file)
+    read_data(properties, path_file, app=True)
 
 
 if __name__ == '__main__':
