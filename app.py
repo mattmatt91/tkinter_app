@@ -9,7 +9,8 @@ from os import listdir
 from os.path import isfile, join, isdir
 import json as js
 from datetime import datetime
-from main import start_measurement_app
+from readdata import read_data 
+from pathlib import Path
 
 class Filehandling:
     def read_json():
@@ -31,6 +32,78 @@ class Filehandling:
         json_string = js.dumps(update_json, indent=4, sort_keys=True)
         with open('properties.json', 'w') as outfile:
             outfile.write(json_string)
+
+
+def start_measurement_app(properties):
+    # updating poperties global json
+    update_properties(properties)
+    
+    # make dir for measurement
+    path, path_file = mkdir(properties)
+    properties['path'] = path
+
+    # saving properties for measurement
+    save_properties_measurement(properties)
+
+    # main measuring part
+    read_data(properties, path_file, app=True)
+
+def update_properties(properties):
+    """
+    This function updates the properties.jsoen file.
+
+    Args:
+        properties (dictionary): dictionary with all parameters for the measurement
+    """
+    update_json = {}
+    for item in "rate duration sensors path lastdir droptime samples number height".split():
+        update_json[item]= properties[item]
+
+    json_string = js.dumps(update_json, indent=4, sort_keys=True)
+    with open('properties.json', 'w') as outfile:
+        outfile.write(json_string)
+
+
+def mkdir(properties, folder=None):
+    """
+    This file creates a new directory for a new measurent.
+    The name consists of the sample, the number and a time stamp.
+
+    Args:
+        properties (dictionary): dictionary with all parameters for the measurement
+        folder (string): name for new folder
+
+    Returns:
+        path (string): path to measurement folder
+        path_file (string): path to measurement file
+    """
+    name = properties['sample'] + '_' + str(properties['sample_number']) + '_' + str(properties['datetime'])
+    if folder != None:
+        path = join(properties['path'], folder, name)
+    else:
+        path = join(properties['path'], name)
+    Path(path).mkdir(parents=True, exist_ok=True)
+    path_file = join(path, name)
+    path_file = path_file + '.txt'
+    return path, path_file
+
+def save_properties_measurement(properties):
+    """
+    This function saves the measurement specific properties in a file called
+    **info.json** in the measurement folder.
+
+    Args:
+        properties (dictionary): dictionary with all parameters for the measurement
+    """
+    print(properties['sensors'])
+    save_properties = properties
+    del save_properties['lastdir']
+    json_string = js.dumps(save_properties, indent=4, sort_keys=True)
+    json_name = properties['path'] + '\\info.json'
+    with open(json_name, 'w') as outfile:
+        outfile.write(json_string)
+
+
 
 
 class App():
@@ -265,6 +338,8 @@ class App():
     def start_test():
         print('starting test')     
 
-app =App()
+
+if __name__ == '__main__':
+    app =App()
 
 

@@ -2,9 +2,9 @@
     "droptime": 1,
     "duration": 3,
     "height": 50,
-    "lastdir": "test4",
-    "number": 24,
-    "path": "C:/Users/mmuhr-adm/Desktop/Neuer ZIP-komprimierter Ordner/Messaufbau/dataaquisition/data\\test4\\test4",
+    "lastdir": "C:/Users/Matthias/Desktop/Messaufbau/dataaquisition/data/test5",
+    "number": 26,
+    "path": "C:/Users/Matthias/Desktop/Messaufbau/dataaquisition/data/test5",
     "rate": 100000,
     "samples": [
         "Blank",
