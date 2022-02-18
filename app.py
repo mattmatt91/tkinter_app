@@ -51,6 +51,7 @@ def start_measurement_app(properties):
     # main measuring part
     read_data(properties, path_file, app=True)
 
+
 def update_properties(properties):
     """
     This function updates the properties.jsoen file.
@@ -90,6 +91,7 @@ def mkdir(properties, folder=None):
     path_file = path_file + '.txt'
     return path, path_file
 
+
 def save_properties_measurement(properties):
     """
     This function saves the measurement specific properties in a file called
@@ -105,8 +107,6 @@ def save_properties_measurement(properties):
     json_name = properties['path'] + '\\info.json'
     with open(json_name, 'w') as outfile:
         outfile.write(json_string)
-
-
 
 
 class App():
@@ -207,6 +207,7 @@ class App():
                                 command=self.start_measurement)
         self.button_start.place(x=self.center, y=self.set_row('measure'))
 
+
         # tab test #######################################################################################
 
         # Buttons
@@ -228,6 +229,12 @@ class App():
         self.dropdown_sensor_to_plot = tk.OptionMenu(self.tab_test, self.sensor_to_plot, *self.sensors)
         self.dropdown_sensor_to_plot.place(x=self.col_2, y=self.set_row('test', next=False, rows=2))
         
+        # Enrtry
+        self.label_width_test = tk.Label(self.tab_test, text='width test')
+        self.label_width_test.place(x=self.col_1b, y=self.set_row('test'))
+        self.entry_width_test = tk.Entry(self.tab_test)
+        self.entry_width_test.insert(0, self.width_test.get())
+        self.entry_width_test.place(x=self.col_2, y=self.set_row('test', next=False))
         # running main
         self.root.mainloop()
 
@@ -245,7 +252,7 @@ class App():
         self.entry_droptime.insert(0, self.droptime.get())
         self.entry_duration.insert(0, self.duration.get())
         self.entry_rate.insert(0, self.rate.get())
-        
+         
 
     def set_row(self, tab, next=True, rows=1):
         if next:
@@ -295,6 +302,8 @@ class App():
         self.height = IntVar()
         self.height.set(self.properties['height'])
         self.info = StringVar()
+        self.width_test = IntVar()
+        self.width_test.set(3)
 
 
     def create_properties(self):
@@ -353,8 +362,9 @@ class App():
 
     # functions for test  
     def start_test(self):
-        print(self.sensor_to_plot)
-        self.app_test = App_Test(3, 100, 10, self.sensors, self.sensor_to_plot.get())
+        self.width_test.set(self.entry_width_test.get())
+        width = self.width_test.get()
+        self.app_test = App_Test(width, 100, 10, self.sensors, self.sensor_to_plot.get())
         self.app_test.start()
         self.state_test = True
         
