@@ -12,7 +12,7 @@ import numpy as np
 class App_Test():
     def __init__(self, width_to_show, rate, points_per_channel, sensors, sensor_to_plot):
         # setting params
-
+        print('plotting {0}'.format(sensor_to_plot))
         self.sensor_to_plot = sensor_to_plot
         self.width_to_show = width_to_show
         self.rate = rate
@@ -69,12 +69,20 @@ class App_Test():
             exit()
 
     def start(self):
+        # try:
         self.plotcanvas = FigureCanvasTkAgg(self.fig, self.child)
+        
         self.plotcanvas.get_tk_widget().grid(column=1, row=1)
         self.ani = animation.FuncAnimation(self.fig, self.animate, interval=50, blit=False)
-        self.child.mainloop()
+        # except Exception as e:
+            # print(e)
+            # self.stop()
+
+    def stop(self):
+        plt.close()
         self.test_data_reader.stop_process()
         self.child.destroy()
+
     
 
 if __name__ == '__main__':
@@ -87,5 +95,9 @@ if __name__ == '__main__':
         rate = 100
         points_per_channel = 10
         sensors = ["Mikro", "Piezo", "VIS1", "IR1", "VIS2", "IR2"]
+
         my_test_reader = App_Test(width_to_show, rate, points_per_channel, sensors, sensor_to_plot)
         my_test_reader.start()
+        root.mainloop()
+
+        

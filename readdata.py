@@ -6,7 +6,7 @@ It is based on the mcculw libary.
 
 from __future__ import absolute_import, division, print_function
 from builtins import *  # @UnusedWildImport
-
+import sys, os
 from time import sleep, time_ns, time
 from ctypes import cast, POINTER, c_double
 
@@ -193,6 +193,9 @@ def read_data(properties, path, app=False):
 
     except Exception as e:
         print('\n', e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
 
     finally:
         try:

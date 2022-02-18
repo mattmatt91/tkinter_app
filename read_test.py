@@ -94,60 +94,64 @@ class Test_read:
 
 
     def read_test_data(self):
-            try:
-                while self.status != Status.IDLE:
-                    try:
-                        # Get the status of the background operation
-                        self.status, current_count, current_index = ul.get_status(
-                            self.board_num, FunctionType.AIFUNCTION)
-                        # print('status: {0} current count: {1} current index: {2} buffer mid point: {3}'
-                        #            .format(self.status, current_count, current_index, self.buffer_mid_point))
-                        # Display the data.
-                        if current_index > self.buffer_mid_point:
-                            # get the lower half.
-                            if self.buff_check == 0:
-                                self.buff_check = 1
-                                loop_index = 0
-                                my_buffer_outer =[]
-                                while loop_index < self.buffer_mid_point:
-                                    my_buffer = []
-                                    for data_index in range(loop_index,
-                                                            (loop_index + self.num_channels)):
-                                        eng_value = self.ctypes_array[data_index]
-                                        my_buffer.append(eng_value)
-                                    loop_index += self.num_channels
-                                    my_buffer_outer.append(my_buffer)
-                                # print(np.array(my_buffer_outer).shape)
-                                # print(np.array(my_buffer_outer))
-                                # print()
-                                
-                                return np.array(my_buffer_outer)
-                                
-                        elif current_index < self.buffer_mid_point:
 
-                            # get the upper half.
-                            if self.buff_check == 1:
-                                self.buff_check = 0
-                                loop_index = int(self.buffer_mid_point)
-                                my_buffer_outer =[]
-                                while loop_index < self.total_count:
-                                    my_buffer = []
-                                    for data_index in range(loop_index,
-                                                            (loop_index + self.num_channels)):
-                                        eng_value = self.ctypes_array[data_index]
-                                        my_buffer.append(eng_value)
-                                    loop_index += self.num_channels
-                                    my_buffer_outer.append(my_buffer)
-                                # print(np.array(my_buffer_outer).shape)
-                                # print(np.array(my_buffer_outer))
-                                # print()
-                                
-                                return np.array(my_buffer_outer)
-                    except Exception as e:
-                        print(e)
+        try:
+            while self.status != Status.IDLE:
+                try:
+                    # Get the status of the background operation
+                    self.status, current_count, current_index = ul.get_status(
+                        self.board_num, FunctionType.AIFUNCTION)
+                    # print('status: {0} current count: {1} current index: {2} buffer mid point: {3}'
+                    #            .format(self.status, current_count, current_index, self.buffer_mid_point))
+                    # Display the data.
+                    if current_index > self.buffer_mid_point:
+                        # get the lower half.
+                        if self.buff_check == 0:
+                            self.buff_check = 1
+                            loop_index = 0
+                            my_buffer_outer =[]
+                            while loop_index < self.buffer_mid_point:
+                                my_buffer = []
+                                for data_index in range(loop_index,
+                                                        (loop_index + self.num_channels)):
+                                    eng_value = self.ctypes_array[data_index]
+                                    my_buffer.append(eng_value)
+                                loop_index += self.num_channels
+                                my_buffer_outer.append(my_buffer)
+                            # print(np.array(my_buffer_outer).shape)
+                            # print(np.array(my_buffer_outer))
+                            # print()
+                            
+                            return np.array(my_buffer_outer)
+                            
+                    elif current_index < self.buffer_mid_point:
 
-            except Exception as e:
-                print('\n', e)
+                        # get the upper half.
+                        if self.buff_check == 1:
+                            self.buff_check = 0
+                            loop_index = int(self.buffer_mid_point)
+                            my_buffer_outer =[]
+                            while loop_index < self.total_count:
+                                my_buffer = []
+                                for data_index in range(loop_index,
+                                                        (loop_index + self.num_channels)):
+                                    eng_value = self.ctypes_array[data_index]
+                                    my_buffer.append(eng_value)
+                                loop_index += self.num_channels
+                                my_buffer_outer.append(my_buffer)
+                            # print(np.array(my_buffer_outer).shape)
+                            # print(np.array(my_buffer_outer))
+                            # print()
+                            
+                            return np.array(my_buffer_outer)
+                except Exception as e:
+                    print('error in measure loop')
+                    print(e)
+
+        except Exception as e:
+            print('\n', e)
+            ul.stop_background(self.board_num, FunctionType.AIFUNCTION)
+            print('\nScan failed')
 
     def stop_process(self):
         try:
@@ -165,7 +169,12 @@ class Test_read:
 
 
 if __name__ == '__main__':
-
-    test = Test_read()
-    print(test.read_test())
-    test.stop_process()
+    sensor_to_plot = 'Mikro'
+    width_to_show = 3
+    rate = 100
+    points_per_channel = 10
+    sensors = ["Mikro", "Piezo", "VIS1", "IR1", "VIS2", "IR2"]
+    test = Test_read(sensors, rate, points_per_channel)
+    while True:
+        print(test.read_test_data())
+    # test.stop_process()

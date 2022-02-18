@@ -213,20 +213,66 @@ class App():
         self.button_start = tk.Button(self.tab_test,
                                 text="start test",
                                 command=self.start_test)
-        self.button_start.place(x=self.col_1, y=self.set_row('test'))
+        self.button_start.place(x=self.col_1b, y=self.set_row('test'))
 
         self.button_start = tk.Button(self.tab_test,
                                 text="stop test",
                                 command=self.stop_test)
-        self.button_start.place(x=self.col_2, y=self.set_row('test'))
+        self.button_start.place(x=self.col_2, y=self.set_row('test', next=False, rows=2))
         
-        
+        # dropdown
+        self.sensor_to_plot = tk.Label(self.tab_test, text='sensor')
+        self.sensor_to_plot.place(x=self.col_1b, y=self.set_row('test'))
+        self.sensor_to_plot = tk.StringVar()
+        self.sensor_to_plot.set(self.sensors[0])
+        self.dropdown_sensor_to_plot = tk.OptionMenu(self.tab_test, self.sensor_to_plot, *self.sensors)
+        self.dropdown_sensor_to_plot.place(x=self.col_2, y=self.set_row('test', next=False, rows=2))
         
         # running main
         self.root.mainloop()
 
 
-    #reading props and setting varaibles
+    # updating entrys
+    def update_entrys(self):
+        self.entry_heigth.delete(0, 'end')
+        self.entry_number.delete(0, 'end')
+        self.entry_droptime.delete(0, 'end')
+        self.entry_duration.delete(0, 'end')
+        self.entry_rate.delete(0, 'end')
+        self.entry_info.delete(0, 'end')
+        self.entry_heigth.insert(0, self.height.get())
+        self.entry_number.insert(0, self.number.get())
+        self.entry_droptime.insert(0, self.droptime.get())
+        self.entry_duration.insert(0, self.duration.get())
+        self.entry_rate.insert(0, self.rate.get())
+        
+
+    def set_row(self, tab, next=True, rows=1):
+        if next:
+            if tab == 'measure':
+                # print(rows, next, self.row_counter)
+                self.row_counter_measure += self.row_distance*rows 
+                this_row_counter = self.row_counter_measure
+            elif tab == 'test':
+                self.row_counter_test += self.row_distance*rows
+                this_row_counter = self.row_counter_test
+        else:
+            if tab == 'measure':
+                this_row_counter = self.row_counter_measure
+            elif tab == 'test':
+                this_row_counter = self.row_counter_test
+        return this_row_counter
+
+
+    def check_if_int(self,value):
+        try:
+            int_value = int(value)
+            return int_value
+        except Exception as e:
+            messagebox.showinfo("dtype warning", "Warning: {0}".format(e))
+
+
+    # functions for measurement
     def reload_properties(self):
         self.properties = Filehandling.read_json()
         self.sensors = self.properties['sensors']
@@ -249,39 +295,6 @@ class App():
         self.height = IntVar()
         self.height.set(self.properties['height'])
         self.info = StringVar()
-        self.sensor_to_plot = StringVar()
-        self.sensor_to_plot.set('Mikro')
-        
-
-    def update_entrys(self):
-        self.entry_heigth.delete(0, 'end')
-        self.entry_number.delete(0, 'end')
-        self.entry_droptime.delete(0, 'end')
-        self.entry_duration.delete(0, 'end')
-        self.entry_rate.delete(0, 'end')
-        self.entry_info.delete(0, 'end')
-        self.entry_heigth.insert(0, self.height.get())
-        self.entry_number.insert(0, self.number.get())
-        self.entry_droptime.insert(0, self.droptime.get())
-        self.entry_duration.insert(0, self.duration.get())
-        self.entry_rate.insert(0, self.rate.get())
-        
-
-    def set_row(self, tab, next=True, rows=1):
-        if next:
-            if tab == 'measure':
-                # print(rows, next, self.row_counter)
-                self.row_counter_measure += self.row_distance*rows 
-                this_row_counter = self.row_counter_measure
-            elif tab == 'test':
-                self.row_counter_measure += self.row_distance*rows
-                this_row_counter = self.row_counter_test
-        else:
-            if tab == 'measure':
-                this_row_counter = self.row_counter_measure
-            elif tab == 'test':
-                this_row_counter = self.row_counter_test
-        return this_row_counter
 
 
     def create_properties(self):
@@ -295,7 +308,6 @@ class App():
         height = self.check_if_int(self.entry_heigth.get())
         time_stamp = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
         last_dir = path[path.rfind('\\')+1:]
-        print('last dir prop: ',last_dir)
         info = self.entry_info.get()
         
         properties = {
@@ -321,14 +333,7 @@ class App():
                 print(js.dumps(properties, indent=6, sort_keys=True))
                 return properties
 
-    def check_if_int(self,value):
-        try:
-            int_value = int(value)
-            return int_value
-        except Exception as e:
-            messagebox.showinfo("dtype warning", "Warning: {0}".format(e))
 
-    
     def start_measurement(self):
         this_properties = self.create_properties()
         if this_properties == None:
@@ -344,25 +349,24 @@ class App():
         filename = filedialog.askdirectory()
         print('selected:', filename)
         self.path.set(filename) 
-        
-    def start_test(self):
-        App_Test(3, 1000, 100, self.sensors, self.sensor_to_plot)
-        
-        # self.state_test = True
-        # print('starting test')
-        # self.test = Test_read()
-        # while self.state_test == True:
-        #     print(self.test.read_test_data())
-            
 
+
+    # functions for test  
+    def start_test(self):
+        print(self.sensor_to_plot)
+        self.app_test = App_Test(3, 100, 10, self.sensors, self.sensor_to_plot.get())
+        self.app_test.start()
+        self.state_test = True
+        
     
     def stop_test(self):
-        pass
         # try:
-        #     self.state_test = False
-        #     self.test.stop_process()
+        self.app_test.stop()
+        self.state_test = False
         # except:
-        #     print('start test first!')
+            # messagebox.showinfo("warning", "test panel is not running")
+            # print('start test first!')
+
 
 if __name__ == '__main__':
     App()
