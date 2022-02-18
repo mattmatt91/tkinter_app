@@ -34,7 +34,7 @@ def read_data(properties, path, app=False):
     device_to_show = "USB-1808"
     board_num = 0
     rate = properties['rate']
-    points_per_channel = properties['rate']/10
+    points_per_channel = int(properties['rate']/10)
     memory_handle = None
     ai_range = ULRange.BIP10VOLTS
     max_samples = rate*properties['duration']
@@ -80,7 +80,7 @@ def read_data(properties, path, app=False):
         low_channel = 0
         high_channel = len(sensors)-1
         num_channels = high_channel - low_channel + 1
-        print()
+
         # Set channel(s) to single ended input mode...
         for channel in range(num_channels):
             ul.a_chan_input_mode(board_num, channel,
@@ -116,7 +116,7 @@ def read_data(properties, path, app=False):
 
         scan_options = ScanOptions.BACKGROUND | ScanOptions.SCALEDATA
         scan_options |= ScanOptions.CONTINUOUS
-        
+
         # Start the scan...
         ul.a_in_scan(
             board_num, low_channel, high_channel, total_count,

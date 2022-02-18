@@ -19,19 +19,14 @@ from mcculw.device_info import DaqDeviceInfo
 import pandas as pd
 import matplotlib.pyplot as plt
 
+import numpy as np
+
 class Test_read:
-    def __init__(self):
+    def __init__(self, sensors, rate, points_per_channel):
         device_to_show = "USB-1808"
         self.board_num = 0
-        rate = 1000
-        points_per_channel = 100
         self.memory_handle = None
         ai_range = ULRange.BIP10VOLTS
-        self.max_samples = rate*1
-        sensors = ["Mikro", "Piezo", "VIS1", "IR1", "VIS2", "IR2"]
-
-
-
         self.buff_check = 0  # 0 = lower_half, 1 = upper_half
 
         # Verify board is Board 0 in InstaCal.  If not, show message...
@@ -68,6 +63,7 @@ class Test_read:
         low_channel = 0
         high_channel = len(sensors)-1
         self.num_channels = high_channel - low_channel + 1
+
         # Set channel(s) to single ended input mode...
         for channel in range(self.num_channels):
             ul.a_chan_input_mode(self.board_num, channel,
@@ -93,56 +89,60 @@ class Test_read:
             self.board_num, low_channel, high_channel, self.total_count,
             rate, ai_range, self.memory_handle, scan_options)
 
-
         self.status, current_count, current_index = ul.get_status(
             self.board_num, FunctionType.AIFUNCTION)
-        
-    def read_test(self):
-            try:
 
-                self.start_time = time_ns()
-                sample_index = 0
-                i = 0
+
+    def read_test_data(self):
+            try:
                 while self.status != Status.IDLE:
-                    print(i)
-                    i += 1
                     try:
                         # Get the status of the background operation
-                        status, current_count, current_index = ul.get_status(
+                        self.status, current_count, current_index = ul.get_status(
                             self.board_num, FunctionType.AIFUNCTION)
-                            
+                        # print('status: {0} current count: {1} current index: {2} buffer mid point: {3}'
+                        #            .format(self.status, current_count, current_index, self.buffer_mid_point))
                         # Display the data.
                         if current_index > self.buffer_mid_point:
-                            print('lower')
                             # get the lower half.
                             if self.buff_check == 0:
                                 self.buff_check = 1
                                 loop_index = 0
+                                my_buffer_outer =[]
                                 while loop_index < self.buffer_mid_point:
                                     my_buffer = []
-                                    sample_index += 1
                                     for data_index in range(loop_index,
                                                             (loop_index + self.num_channels)):
                                         eng_value = self.ctypes_array[data_index]
                                         my_buffer.append(eng_value)
-                                    print(len(my_buffer), 1)
                                     loop_index += self.num_channels
-
+                                    my_buffer_outer.append(my_buffer)
+                                # print(np.array(my_buffer_outer).shape)
+                                # print(np.array(my_buffer_outer))
+                                # print()
+                                
+                                return np.array(my_buffer_outer)
+                                
                         elif current_index < self.buffer_mid_point:
-                            print('upper')
+
                             # get the upper half.
                             if self.buff_check == 1:
                                 self.buff_check = 0
                                 loop_index = int(self.buffer_mid_point)
+                                my_buffer_outer =[]
                                 while loop_index < self.total_count:
                                     my_buffer = []
-                                    sample_index += 1
                                     for data_index in range(loop_index,
                                                             (loop_index + self.num_channels)):
                                         eng_value = self.ctypes_array[data_index]
                                         my_buffer.append(eng_value)
-                                    print(len(my_buffer), 2)
                                     loop_index += self.num_channels
+                                    my_buffer_outer.append(my_buffer)
+                                # print(np.array(my_buffer_outer).shape)
+                                # print(np.array(my_buffer_outer))
+                                # print()
+                                
+                                return np.array(my_buffer_outer)
                     except Exception as e:
                         print(e)
 
@@ -153,7 +153,6 @@ class Test_read:
         try:
             ul.stop_background(self.board_num, FunctionType.AIFUNCTION)
             print('\nScan completed successfully')
-            print('measurement time = ', '{:10d}'.format(time_ns()- self.start_time))
 
             if self.memory_handle:
                         # Free the buffer in a finally block to prevent a memory leak.
@@ -168,5 +167,5 @@ class Test_read:
 if __name__ == '__main__':
 
     test = Test_read()
-    test.read_test()
+    print(test.read_test())
     test.stop_process()

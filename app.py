@@ -11,6 +11,9 @@ import json as js
 from datetime import datetime
 from readdata import read_data 
 from pathlib import Path
+import plot_live
+from read_test import Test_read
+
 
 class Filehandling:
     def read_json():
@@ -210,12 +213,17 @@ class App():
         self.button_start = tk.Button(self.tab_test,
                                 text="start test",
                                 command=self.start_test)
-        self.button_start.place(x=self.center, y=self.set_row('test'))
+        self.button_start.place(x=self.col_1, y=self.set_row('test'))
+
+        self.button_start = tk.Button(self.tab_test,
+                                text="stop test",
+                                command=self.stop_test)
+        self.button_start.place(x=self.col_2, y=self.set_row('test'))
         
         
         
         # running main
-        self.tab_measure.mainloop()
+        self.root.mainloop()
 
 
     #reading props and setting varaibles
@@ -335,11 +343,25 @@ class App():
         print('selected:', filename)
         self.path.set(filename) 
         
-    def start_test():
-        print('starting test')     
+    def start_test(self):
+        pass
+        # self.state_test = True
+        # print('starting test')
+        # self.test = Test_read()
+        # while self.state_test == True:
+        #     print(self.test.read_test_data())
+            
 
+    
+    def stop_test(self):
+        pass
+        # try:
+        #     self.state_test = False
+        #     self.test.stop_process()
+        # except:
+        #     print('start test first!')
 
 if __name__ == '__main__':
-    app =App()
+    App()
 
 
