@@ -214,7 +214,9 @@ def read_data(properties, path, app=False):
             print(df.info())
             df.to_csv(path, sep='\t', decimal='.', index=True)
             df.plot()
-            plt.show()
+            # plt.show()
+            plt.close()
+            return True
         except Exception as e:
             print('error in finally: ',e)
         

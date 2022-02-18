@@ -1,4 +1,13 @@
+"""
+This module is the main module of the package. It includes a GUI for
+reading, data and monitoring channels
+
+:copyright: (c) 2022 by Matthias Muhr, Hochschule-Bonn-Rhein-Sieg
+:license: see LICENSE for more details.
+"""
+
 #!/usr/bin/python
+from msilib.schema import Class
 from tkinter import *
 from tkinter import messagebox
 import tkinter as tk
@@ -16,6 +25,10 @@ from plot_live import App_Test
 
 
 class Filehandling:
+    """This is a class with functions for handling files.
+    Args:
+        properties (dictionary): properties is a dictionary with all parameters for evaluating the data
+    """
     def read_json():
         with open('properties.json') as json_file:
             return js.load(json_file)
@@ -37,19 +50,7 @@ class Filehandling:
             outfile.write(json_string)
 
 
-def start_measurement_app(properties):
-    # updating poperties global json
-    update_properties(properties)
-    
-    # make dir for measurement
-    path, path_file = mkdir(properties)
-    properties['path'] = path
 
-    # saving properties for measurement
-    save_properties_measurement(properties)
-
-    # main measuring part
-    read_data(properties, path_file, app=True)
 
 
 def update_properties(properties):
@@ -109,8 +110,7 @@ def save_properties_measurement(properties):
         outfile.write(json_string)
 
 
-class App():
-    
+class App(object):
     def __init__(self):
         # main window
         self.width_window = 400
@@ -238,7 +238,6 @@ class App():
         # running main
         self.root.mainloop()
 
-
     # updating entrys
     def update_entrys(self):
         self.entry_heigth.delete(0, 'end')
@@ -277,6 +276,23 @@ class App():
             return int_value
         except Exception as e:
             messagebox.showinfo("dtype warning", "Warning: {0}".format(e))
+
+
+    def start_measurement_app(self, properties):
+
+        # updating poperties global json
+        update_properties(properties)
+        
+        # make dir for measurement
+        path, path_file = mkdir(properties)
+        properties['path'] = path
+
+        # saving properties for measurement
+        save_properties_measurement(properties)
+
+        # main measuring part
+        status = read_data(properties, path_file, app=True)
+        return status
 
 
     # functions for measurement
@@ -349,7 +365,8 @@ class App():
             return
         else:
             print('starting measurement\n')
-            start_measurement_app(this_properties)
+            messagebox.showinfo("", "IN PROGRESS")
+            status = True # self.start_measurement_app(this_properties)
             self.reload_properties()
             self.update_entrys()
             
@@ -359,7 +376,7 @@ class App():
         print('selected:', filename)
         self.path.set(filename) 
 
-
+    
     # functions for test  
     def start_test(self):
         self.width_test.set(self.entry_width_test.get())
@@ -367,15 +384,15 @@ class App():
         self.app_test = App_Test(width, 100, 10, self.sensors, self.sensor_to_plot.get())
         self.app_test.start()
         self.state_test = True
-        
     
+
     def stop_test(self):
-        # try:
-        self.app_test.stop()
-        self.state_test = False
-        # except:
-            # messagebox.showinfo("warning", "test panel is not running")
-            # print('start test first!')
+            try:
+                self.app_test.stop()
+                self.state_test = False
+            except:
+                    messagebox.showinfo("warning", "test panel is not running")
+                    print('start test first!')
 
 
 if __name__ == '__main__':
