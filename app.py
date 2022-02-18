@@ -12,7 +12,7 @@ from datetime import datetime
 from readdata import read_data 
 from pathlib import Path
 import plot_live
-from read_test import Test_read
+from plot_live import App_Test
 
 
 class Filehandling:
@@ -249,6 +249,8 @@ class App():
         self.height = IntVar()
         self.height.set(self.properties['height'])
         self.info = StringVar()
+        self.sensor_to_plot = StringVar()
+        self.sensor_to_plot.set('Mikro')
         
 
     def update_entrys(self):
@@ -344,7 +346,8 @@ class App():
         self.path.set(filename) 
         
     def start_test(self):
-        pass
+        App_Test(3, 1000, 100, self.sensors, self.sensor_to_plot)
+        
         # self.state_test = True
         # print('starting test')
         # self.test = Test_read()
