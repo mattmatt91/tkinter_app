@@ -9,7 +9,7 @@ reading, data and monitoring channels
 #!/usr/bin/python
 from msilib.schema import Class
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, font
 import tkinter as tk
 from tkinter import ttk
 from time import sleep
@@ -23,6 +23,8 @@ from pathlib import Path
 import plot_live
 from plot_live import App_Test
 from sub_window_spec import App_Test_Spec
+from PIL import ImageTk, Image 
+import os
 
 
 class Filehandling:
@@ -114,8 +116,13 @@ def save_properties_measurement(properties):
 class App(object):
     def __init__(self):
         # main window
-        self.width_window = 400
-        self.height_window = 700
+        self.width_window = 600
+        self.height_window = 800
+        self.font_family = "Courier"
+        self.font_size_label = 30
+        self.font_size_text = 15
+        self.font_string_text = f'{self.font_family} {self.font_size_text}'
+        self.font_string_label = f'{self.font_family} {self.font_size_label}'
         self.col_1 = 0
         self.col_2 = self.width_window/2 
         self.col_1b = self.width_window/4 
@@ -130,6 +137,11 @@ class App(object):
         self.root.geometry(self.goemetry)
         self.reload_properties()
 
+        self.defaultFont = font.nametofont("TkDefaultFont")
+        self.defaultFont.configure(family=self.font_family,
+                                   size=self.font_size_text,
+                                   weight=font.BOLD)
+
         # create tabs
         self.tabControl = ttk.Notebook(self.root)
         self.tab_measure = ttk.Frame(self.tabControl)
@@ -137,8 +149,10 @@ class App(object):
         self.tabControl.add(self.tab_measure, text ='measure')
         self.tabControl.add(self.tab_test, text ='test')
         self.tabControl.pack(expand = 1, fill ="both")
+        
 
         # tab measure #######################################################################################
+        
         # folde browser
         self.label_path_preview = tk.Label(self.tab_measure, text='path')
         self.label_path_preview.place(x=self.col_1, y=self.set_row('measure')) 
@@ -146,44 +160,48 @@ class App(object):
         self.button_folder_browser = Button(self.tab_measure, text="Browse", command=self.browse_button)
         self.button_folder_browser.place(x=self.col_1b, y=self.set_row('measure', next=False))
         
-        self.label_path = tk.Label(self.tab_measure, textvariable=self.path, wraplengt=150)
+        self.label_path = tk.Label(self.tab_measure, textvariable=self.path, wraplengt=250)
         self.label_path.place(x=self.col_2, y=self.set_row('measure', next=False)) 
+
+        self.button_folder_open = Button(self.tab_measure, text="open", command=self.open)
+        self.button_folder_open.place(x=self.col_1b, y=self.set_row('measure'))
+
         
-        
+    
         # entrys
         self.label_heigth = tk.Label(self.tab_measure, text='height')
         self.label_heigth.place(x=self.col_1, y=self.set_row('measure', rows=2))
-        self.entry_heigth = tk.Entry(self.tab_measure)
+        self.entry_heigth = tk.Entry(self.tab_measure, font=self.font_string_text)
         self.entry_heigth.insert(0, self.height.get())
         self.entry_heigth.place(x=self.col_2, y=self.set_row('measure', next=False))
 
         self.label_number = tk.Label(self.tab_measure, text='number')
         self.label_number.place(x=self.col_1, y=self.set_row('measure'))
-        self.entry_number = tk.Entry(self.tab_measure)
+        self.entry_number = tk.Entry(self.tab_measure, font=self.font_string_text)
         self.entry_number.insert(0, self.number.get())
         self.entry_number.place(x=self.col_2, y=self.set_row('measure', next=False))
         
         self.label_droptime = tk.Label(self.tab_measure, text='droptime')
         self.label_droptime.place(x=self.col_1, y=self.set_row('measure'))
-        self.entry_droptime = tk.Entry(self.tab_measure)
+        self.entry_droptime = tk.Entry(self.tab_measure, font=self.font_string_text)
         self.entry_droptime.insert(0, self.droptime.get())
         self.entry_droptime.place(x=self.col_2, y=self.set_row('measure', next=False))
         
         self.label_duration = tk.Label(self.tab_measure, text='duration')
         self.label_duration.place(x=self.col_1, y=self.set_row('measure'))
-        self.entry_duration = tk.Entry(self.tab_measure)
+        self.entry_duration = tk.Entry(self.tab_measure, font=self.font_string_text)
         self.entry_duration.insert(0, self.duration.get())
         self.entry_duration.place(x=self.col_2, y=self.set_row('measure', next=False))
         
         self.label_rate = tk.Label(self.tab_measure, text='rate')
         self.label_rate.place(x=self.col_1, y=self.set_row('measure'))
-        self.entry_rate = tk.Entry(self.tab_measure)
+        self.entry_rate = tk.Entry(self.tab_measure, font=self.font_string_text)
         self.entry_rate.insert(0, self.rate.get())
         self.entry_rate.place(x=self.col_2, y=self.set_row('measure', next=False))
 
         self.label_info = tk.Label(self.tab_measure, text='info')
         self.label_info.place(x=self.col_1, y=self.set_row('measure'))
-        self.entry_info = tk.Entry(self.tab_measure)
+        self.entry_info = tk.Entry(self.tab_measure, font=self.font_string_text)
         self.entry_info.place(x=self.col_2, y=self.set_row('measure', next=False), height=100)
 
         # check button
@@ -203,10 +221,16 @@ class App(object):
         
 
         # Buttons
+        self.img= (Image.open("ghs.png"))
+        self.resized_image= self.img.resize((50,50), Image.ANTIALIAS)
+        self.new_image= ImageTk.PhotoImage(self.resized_image)
+        
         self.button_start = tk.Button(self.tab_measure,
-                                text="start measurement",
-                                command=self.start_measurement)
-        self.button_start.place(x=self.center, y=self.set_row('measure'))
+                                image=self.new_image,
+                                command=self.start_measurement,
+                                height= 50, width=200,
+                                padx=10, pady=10)
+        self.button_start.place(x=self.col_1b, y=self.set_row('measure'))
 
 
         # tab test #######################################################################################
@@ -214,13 +238,13 @@ class App(object):
         #Label 
         self.label_test_sensors = tk.Label(self.tab_test, text='sensor')
         self.label_test_sensors.place(x=self.col_1, y=self.set_row('test'))
-        self.label_test_sensors.config(font=("Courier", 33))
+        self.label_test_sensors.config(font=self.font_string_label)
 
         # Buttons
         self.button_start = tk.Button(self.tab_test,
                                 text="start test",
                                 command=self.start_test)
-        self.button_start.place(x=self.col_1b, y=self.set_row('test'))
+        self.button_start.place(x=self.col_1b, y=self.set_row('test', rows=2))
 
         self.button_stop = tk.Button(self.tab_test,
                                 text="stop test",
@@ -238,31 +262,37 @@ class App(object):
         # Enrtry
         self.label_width_test = tk.Label(self.tab_test, text='width test')
         self.label_width_test.place(x=self.col_1b, y=self.set_row('test'))
-        self.entry_width_test = tk.Entry(self.tab_test)
+        self.entry_width_test = tk.Entry(self.tab_test, font=self.font_string_text)
         self.entry_width_test.insert(0, self.width_test.get())
         self.entry_width_test.place(x=self.col_2, y=self.set_row('test', next=False, rows=4))
         
         #### spectrometer ####
         # Label 
         self.label_test_sensors = tk.Label(self.tab_test, text='spectrometer')
-        self.label_test_sensors.place(x=self.col_1, y=self.set_row('test'))
-        self.label_test_sensors.config(font=("Courier", 33))
+        self.label_test_sensors.place(x=self.col_1, y=self.set_row('test', rows=3))
+        self.label_test_sensors.config(font=self.font_string_label)
 
         # Buttons
         self.button_start_spec = tk.Button(self.tab_test,
                                 text="start test",
                                 command=self.start_test_spec)
-        self.button_start_spec.place(x=self.col_1b, y=self.set_row('test'))
+        self.button_start_spec.place(x=self.col_1b, y=self.set_row('test', rows=2))
 
         self.button_stop_spec = tk.Button(self.tab_test,
                                 text="stop test",
-                                command=self.stop_test)
+                                command=self.stop_test_spec)
         self.button_stop_spec.place(x=self.col_2, y=self.set_row('test', next=False, rows=2))
 
 
         # running main
         self.root.mainloop()
 
+
+    #open file explorer
+    def open(self):
+            os.system('start ' + self.path.get())
+
+    
     # updating entrys
     def update_entrys(self):
         self.entry_heigth.delete(0, 'end')
@@ -316,6 +346,7 @@ class App(object):
         save_properties_measurement(properties)
 
         # main measuring part
+        ### hier mit threading arbieten
         status = read_data(properties, path_file, app=True)
         return status
 
@@ -421,18 +452,17 @@ class App(object):
     # functions for test spectrometer
     def start_test_spec(self):
         
-        self.app_tes_spec = App_Test_Spec(100)
+        self.app_test_spec = App_Test_Spec(100)
         self.app_test_spec.start()
         self.state_test_spec = True
-    
 
     def stop_test_spec(self):
-            try:
-                self.app_test.stop()
-                self.state_test = False
-            except:
-                    messagebox.showinfo("warning", "test panel is not running")
-                    print('start test first!')
+
+        self.app_test_spec.stop()
+        self.state_test_spec = False
+
+    
+
 
 
 if __name__ == '__main__':

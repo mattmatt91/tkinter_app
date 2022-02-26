@@ -62,7 +62,7 @@ class App_Test_Spec():
 
     def stop(self):
         plt.close()
-        self.test_data_reader.stop_process()
+        self.test_spec_reader.stop_process()
         self.child.destroy()
 
     

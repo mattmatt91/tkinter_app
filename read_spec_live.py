@@ -27,7 +27,7 @@ class Test_read_spec:
 
 
     def stop_process(self):
-        pass
+        self.spec.close()
         
         
 if __name__ == '__main__':
