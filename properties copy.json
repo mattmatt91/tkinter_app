@@ -3,6 +3,8 @@
 
     "duration": 3,
 
+    "integration_time_micros": 20000,
+
     "sensors": [
         "Mikro",
         "Piezo",

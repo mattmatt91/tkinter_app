@@ -19,7 +19,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def read_data(properties, path, app=False):
+def read_data(properties, path, app=True):
     """
     This is the main function of the module.
     This function records data with the parameters stored in
@@ -29,7 +29,6 @@ def read_data(properties, path, app=False):
         properties (dictionary): dictionary with all parameters for the measurement
         path (string): path to the measurement file
     """
-    print(properties)
     channel_num = 0
     device_to_show = "USB-1808"
     board_num = 0
@@ -124,7 +123,6 @@ def read_data(properties, path, app=False):
 
         # print('actual scan rate = ', '{:.6f}'.format(rate), 'Hz\n')
 
-        print('Please enter CTRL + C to terminate the process\n')
 
         status, current_count, current_index = ul.get_status(
             board_num, FunctionType.AIFUNCTION)
@@ -134,7 +132,7 @@ def read_data(properties, path, app=False):
                 user_input = input('press 1 to start')
                 if int(user_input) == 1:
                     start = True
-        print("starting...")
+        print("starting DAQ")
 
         try:
             data = []
@@ -199,9 +197,12 @@ def read_data(properties, path, app=False):
 
     finally:
         try:
-            ul.stop_background(board_num, FunctionType.AIFUNCTION)
+            end_time = time_ns()
+            ul.stop_background(board_num, FunctionType.AIFUNCTION) 
+            duration_DAQ = (end_time - start_time)/1000000000
+            print(f'duration DAQ: {duration_DAQ}')
+            print(f'start DAQ: {start_time} in ns')
             print('\nScan completed successfully')
-            print('measurement time = ', '{:10d}'.format(time_ns()- start_time))
 
             if memory_handle:
                         # Free the buffer in a finally block to prevent a memory leak.
@@ -210,8 +211,6 @@ def read_data(properties, path, app=False):
             df = pd.DataFrame(data, columns=properties['sensors'])
             df['time [s]'] = [i/rate for i in df.index]
             df.set_index('time [s]', inplace=True) 
-            print(df.head())
-            print(df.info())
             df.to_csv(path, sep='\t', decimal='.', index=True)
             df.plot()
             # plt.show()
