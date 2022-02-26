@@ -22,6 +22,7 @@ from readdata import read_data
 from pathlib import Path
 import plot_live
 from plot_live import App_Test
+from sub_window_spec import App_Test_Spec
 
 
 class Filehandling:
@@ -210,16 +211,21 @@ class App(object):
 
         # tab test #######################################################################################
 
+        #Label 
+        self.label_test_sensors = tk.Label(self.tab_test, text='sensor')
+        self.label_test_sensors.place(x=self.col_1, y=self.set_row('test'))
+        self.label_test_sensors.config(font=("Courier", 33))
+
         # Buttons
         self.button_start = tk.Button(self.tab_test,
                                 text="start test",
                                 command=self.start_test)
         self.button_start.place(x=self.col_1b, y=self.set_row('test'))
 
-        self.button_start = tk.Button(self.tab_test,
+        self.button_stop = tk.Button(self.tab_test,
                                 text="stop test",
                                 command=self.stop_test)
-        self.button_start.place(x=self.col_2, y=self.set_row('test', next=False, rows=2))
+        self.button_stop.place(x=self.col_2, y=self.set_row('test', next=False, rows=2))
         
         # dropdown
         self.sensor_to_plot = tk.Label(self.tab_test, text='sensor')
@@ -234,7 +240,26 @@ class App(object):
         self.label_width_test.place(x=self.col_1b, y=self.set_row('test'))
         self.entry_width_test = tk.Entry(self.tab_test)
         self.entry_width_test.insert(0, self.width_test.get())
-        self.entry_width_test.place(x=self.col_2, y=self.set_row('test', next=False))
+        self.entry_width_test.place(x=self.col_2, y=self.set_row('test', next=False, rows=4))
+        
+        #### spectrometer ####
+        # Label 
+        self.label_test_sensors = tk.Label(self.tab_test, text='spectrometer')
+        self.label_test_sensors.place(x=self.col_1, y=self.set_row('test'))
+        self.label_test_sensors.config(font=("Courier", 33))
+
+        # Buttons
+        self.button_start_spec = tk.Button(self.tab_test,
+                                text="start test",
+                                command=self.start_test_spec)
+        self.button_start_spec.place(x=self.col_1b, y=self.set_row('test'))
+
+        self.button_stop_spec = tk.Button(self.tab_test,
+                                text="stop test",
+                                command=self.stop_test)
+        self.button_stop_spec.place(x=self.col_2, y=self.set_row('test', next=False, rows=2))
+
+
         # running main
         self.root.mainloop()
 
@@ -365,8 +390,7 @@ class App(object):
             return
         else:
             print('starting measurement\n')
-            messagebox.showinfo("", "IN PROGRESS")
-            status = True # self.start_measurement_app(this_properties)
+            self.start_measurement_app(this_properties)
             self.reload_properties()
             self.update_entrys()
             
@@ -377,7 +401,7 @@ class App(object):
         self.path.set(filename) 
 
     
-    # functions for test  
+    # functions for test sensors
     def start_test(self):
         self.width_test.set(self.entry_width_test.get())
         width = self.width_test.get()
@@ -387,6 +411,22 @@ class App(object):
     
 
     def stop_test(self):
+            try:
+                self.app_test.stop()
+                self.state_test = False
+            except:
+                    messagebox.showinfo("warning", "test panel is not running")
+                    print('start test first!')
+
+    # functions for test spectrometer
+    def start_test_spec(self):
+        
+        self.app_tes_spec = App_Test_Spec(100)
+        self.app_test_spec.start()
+        self.state_test_spec = True
+    
+
+    def stop_test_spec(self):
             try:
                 self.app_test.stop()
                 self.state_test = False
